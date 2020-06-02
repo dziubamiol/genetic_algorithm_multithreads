@@ -4,9 +4,12 @@
 #include <random>
 #include <chrono>
 #include <omp.h>
+#include <algorithm>
 
 #define POPULATION_SIZE 2000
+#define SIZE 100
 
+/*
 struct Timer {
 public:
     std::chrono::high_resolution_clock::time_point start_time;
@@ -22,7 +25,7 @@ public:
     }
 
 };
-
+*/
 /* --- Calculation functions --- */
 
 double target_function(double x) {
@@ -123,21 +126,27 @@ double calculate_region(double start, double end, std::mt19937 &rand) {
  }
 
 int main() {
+
+    //std::cout << "Max threads: " << omp_get_max_threads() << "\n";
     std::mt19937 rand { std::random_device{}() };
-    Timer timer = Timer();
+   // Timer timer = Timer();
     std::vector<double> picks;
-    timer.start_timer();
-    for (int i = 0; i < 10; i++) {
-        double pick = calculate_region(i * 2 * 3.14, i * 2 * 3.14 + 2 * 3.14, rand);
+   // timer.start_timer();
+    
+    {
+	#pragma omp parallel for   
+    	for (int i = 0; i < SIZE; i++) {
+        	double pick = calculate_region(i * 2 * 3.14, i * 2 * 3.14 + 2 * 3.14, rand);
 
-        picks.push_back(pick);
+        	picks.push_back(pick);
+    	}
     }
-    double elapsed_time = timer.get_time_elapsed();
+   // double elapsed_time = timer.get_time_elapsed();
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < SIZE; i++) {
         std::cout << "Pick #" << i << " x: " << picks[i] << "\n";
     }
-    std::cout << "Elapsed time: " << elapsed_time << "s\n";
+   // std::cout << "Elapsed time: " << elapsed_time << "s\n";
 
     return 0;
 }
