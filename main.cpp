@@ -137,8 +137,10 @@ int main() {
 	#pragma omp parallel for   
     	for (int i = 0; i < SIZE; i++) {
         	double pick = calculate_region(i * 2 * 3.14, i * 2 * 3.14 + 2 * 3.14, rand);
-
-        	picks.push_back(pick);
+                #pragma omp critical (insert_picks)
+		{
+        		picks.push_back(pick);
+		}
     	}
     }
    // double elapsed_time = timer.get_time_elapsed();
